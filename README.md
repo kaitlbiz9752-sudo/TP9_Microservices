@@ -1,311 +1,115 @@
-# TP React – Gestion des Comptes Clients
 
-Ce projet est une petite application **React** permettant de gérer des comptes clients à partir d’une **API REST** (backend Spring Boot ou autre).  
-Elle permet notamment :
+# TP Microservices — Projet Compte (Backend Spring Boot + Front React)
 
-- d’afficher la **liste des comptes** ;
-- d’**ajouter** un nouveau compte via un formulaire ;
-- de communiquer avec un backend via **Axios**.
+Ce projet est composé de **deux applications distinctes** :
 
----
+1. **Backend : compte-api-rest (Spring Boot)**
+2. **Frontend : compte-client (React.js)**
 
-## 1. Prérequis
-
-Avant de commencer, vous devez avoir installé :
-
-- **Node.js** (version LTS recommandée)
-- **npm** (installé automatiquement avec Node.js)
-- Un navigateur moderne (Chrome, Firefox, Edge, …)
-- Un éditeur de code (VS Code recommandé)
-
-### Vérifier l’installation de Node.js et npm
-
-Dans un terminal / invite de commandes :
-
-```bash
-node -v
-npm -v
-```
-
-Vous devez voir s’afficher les numéros de version de Node.js et npm.
+Les deux projets communiquent via une API REST permettant la gestion des comptes bancaires.
 
 ---
 
-## 2. Création et configuration du projet React
+# 1. Backend – Spring Boot (compte-api-rest)
 
-### 2.1. Créer le projet React
+## 📁 Arborescence principale
+- `controllers` : contient le contrôleur REST exposant les endpoints.
+- `entities` : contient les classes du modèle (Compte, TypeCompte).
+- `repositories` : contient les interfaces d’accès aux données.
+- `resources/application.properties` : configuration du serveur, base de données, port…
+- `pom.xml` : dépendances Maven du projet.
 
-Dans un terminal, exécuter :
+## 🚀 Fonctionnalités
+- Exposer une API REST pour gérer les comptes.
+- Fournir les endpoints pour :
+  - récupérer la liste des comptes ;
+  - ajouter un compte.
 
-```bash
-npx create-react-app compte-client
-cd compte-client
+## ▶️ Lancer le backend
+Depuis IntelliJ ou via terminal :
+
+```
+mvn spring-boot:run
 ```
 
-### 2.2. Installer Bootstrap
-
-```bash
-npm install bootstrap
-```
-
-Puis, dans le fichier `src/index.js`, ajouter :
-
-```javascript
-import 'bootstrap/dist/css/bootstrap.min.css';
-```
+Il démarre par défaut sur :  
+👉 **http://localhost:8082**
 
 ---
 
-## 3. Configuration du Endpoint API
+# 2. Frontend – React (compte-client)
 
-Nous allons centraliser l’URL de base de l’API REST dans un fichier de configuration.
+## 📁 Arborescence principale
+- `src/components/` : contient les composants React :
+  - `CompteList.js` : affichage de la liste des comptes
+  - `CompteForm.js` : formulaire d’ajout de compte
+- `src/config.js` : contient l’URL du backend
+- `App.js` : assemble les composants
+- `public/` : fichiers statiques
+- `package.json` : dépendances du front
 
-### 3.1. Créer le fichier `src/config.js`
+## 🎯 Fonctionnalités
+- Afficher la liste des comptes récupérés depuis l’API REST.
+- Ajouter un nouveau compte via un formulaire.
+- Communiquer avec Spring Boot via Axios.
 
-```javascript
-// src/config.js
-const API_BASE_URL = "http://localhost:8082/api";
+## ▶️ Lancer le frontend
+Depuis le projet React :
 
-export default API_BASE_URL;
 ```
-
-- `API_BASE_URL` : URL de base de votre backend (à adapter si besoin).
-- `export default` : permet d’importer cette constante dans d’autres fichiers.
-
----
-
-## 4. Création des composants React
-
-Nous allons créer deux composants :
-
-- `CompteList` : affichage de la liste des comptes.
-- `CompteForm` : formulaire pour ajouter un compte.
-
-### 4.1. Composant `CompteList`
-
-Créer le dossier `src/components` (s’il n’existe pas), puis le fichier :  
-`src/components/CompteList.js`
-
-```javascript
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import API_BASE_URL from '../config';
-
-function CompteList() {
-  // État local pour stocker la liste des comptes
-  const [comptes, setComptes] = useState([]);
-
-  // Appel à l’API au chargement du composant
-  useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/comptes`)
-      .then(response => setComptes(response.data))
-      .catch(error => console.error(error));
-  }, []);
-
-  return (
-    <div className="container mt-4">
-      <h2>Liste des Comptes</h2>
-      <table className="table table-bordered">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Solde</th>
-            <th>Date de Création</th>
-            <th>Type</th>
-          </tr>
-        </thead>
-        <tbody>
-          {comptes.map(compte => (
-            <tr key={compte.id}>
-              <td>{compte.id}</td>
-              <td>{compte.solde}</td>
-              <td>{compte.dateCreation}</td>
-              <td>{compte.type}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-export default CompteList;
-```
-
-#### Explications rapides
-
-- `useState([])` : initialise l’état `comptes` comme un tableau vide.
-- `useEffect(..., [])` : exécute l’appel API une seule fois au montage du composant.
-- `axios.get(`${API_BASE_URL}/comptes`)` : récupère la liste des comptes via l’API.
-
-> ⚠️ Attention : bien utiliser les backticks \` \` pour l’interpolation `${API_BASE_URL}`.
-
----
-
-### 4.2. Composant `CompteForm`
-
-Créer le fichier :  
-`src/components/CompteForm.js`
-
-```javascript
-import React, { useState } from 'react';
-import axios from 'axios';
-import API_BASE_URL from '../config';
-
-function CompteForm() {
-  // État local pour les valeurs du formulaire
-  const [compte, setCompte] = useState({
-    solde: '',
-    dateCreation: '',
-    type: 'COURANT'
-  });
-
-  // Mise à jour de l’état lors de la saisie
-  const handleChange = (e) => {
-    setCompte({ ...compte, [e.target.name]: e.target.value });
-  };
-
-  // Soumission du formulaire
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    axios
-      .post(`${API_BASE_URL}/comptes`, compte)
-      .then(response => {
-        alert('Compte ajouté avec succès');
-        // Optionnel : réinitialiser le formulaire
-        setCompte({ solde: '', dateCreation: '', type: 'COURANT' });
-      })
-      .catch(error => console.error(error));
-  };
-
-  return (
-    <div className="container mt-4">
-      <h2>Ajouter un Compte</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label>Solde</label>
-          <input
-            type="number"
-            name="solde"
-            className="form-control"
-            value={compte.solde}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label>Date de Création</label>
-          <input
-            type="date"
-            name="dateCreation"
-            className="form-control"
-            value={compte.dateCreation}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label>Type</label>
-          <select
-            name="type"
-            className="form-select"
-            value={compte.type}
-            onChange={handleChange}
-          >
-            <option value="COURANT">Courant</option>
-            <option value="EPARGNE">Épargne</option>
-          </select>
-        </div>
-        <button type="submit" className="btn btn-primary">
-          Ajouter
-        </button>
-      </form>
-    </div>
-  );
-}
-
-export default CompteForm;
-```
-
-#### Explications rapides
-
-- `useState({ ... })` : stocke les valeurs du formulaire dans l’état local.
-- `handleChange` : met à jour l’état dès qu’un champ est modifié.
-- `handleSubmit` : envoie une requête POST vers l’API pour ajouter un nouveau compte.
-
----
-
-## 5. Intégration des composants dans `App.js`
-
-Modifier le fichier `src/App.js` comme suit :
-
-```javascript
-import React from 'react';
-import CompteList from './components/CompteList';
-import CompteForm from './components/CompteForm';
-
-function App() {
-  return (
-    <div>
-      <CompteForm />
-      <CompteList />
-    </div>
-  );
-}
-
-export default App;
-```
-
-L’application affichera :
-
-1. Le formulaire d’ajout de compte en haut.
-2. La liste des comptes en dessous.
-
----
-
-## 6. Lancer et tester l’application
-
-Dans le dossier du projet (`compte-client`) :
-
-```bash
+npm install
 npm start
 ```
 
-- L’application démarre en mode développement.
-- Par défaut, elle est accessible à l’adresse :  
-  👉 http://localhost:3000
-
-Assurez-vous que votre **backend** (API REST) est démarré et accessible sur :  
-`http://localhost:8082/api` (ou l’URL que vous avez définie dans `config.js`).
+L’application s’ouvre automatiquement sur :  
+👉 **http://localhost:3000**
 
 ---
 
-## 7. Notes et pistes d’amélioration
+# 3. Communication entre Backend et Frontend
 
-- Ajouter une **mise à jour automatique** de la liste après l’ajout d’un compte (remonter l’état au composant parent ou passer une fonction de rappel).
-- Gérer les **messages d’erreur** (ex. affichage dans l’UI plutôt que `console.error`).
-- Ajouter une **suppression** ou **modification** de compte.
-- Mettre en place une **gestion d’état globale** (Redux, Context API) si l’application devient plus complexe.
+Le fichier `src/config.js` du front contient l’URL du backend :
 
----
-
-## 8. Structure finale du projet (simplifiée)
-
-```text
-compte-client/
-├─ src/
-│  ├─ components/
-│  │  ├─ CompteForm.js
-│  │  └─ CompteList.js
-│  ├─ config.js
-│  ├─ App.js
-│  ├─ index.js
-│  └─ ...
-├─ package.json
-└─ README.md  (ce fichier)
+```
+http://localhost:8082/api
 ```
 
-Vous avez maintenant un projet React de base prêt pour le TP de gestion des comptes clients. 🎓
+Ainsi, React peut appeler les endpoints exposés par Spring Boot.
 
+---
+
+# 4. Architecture Globale
+
+### 🟩 Front-end (React)
+Affiche l’interface graphique + envoie des requêtes API.
+
+### 🟦 API REST (Spring Boot)
+Gère la logique métier + communique avec la base de données.
+
+---
+
+# 5. Résultat attendu
+
+Une mini-application complète permettant :
+
+- d’ajouter un compte bancaire ;
+- d’afficher tous les comptes dans un tableau ;
+- d’interagir avec un backend Spring Boot.
+
+---
+
+# 6. Améliorations possibles
+
+- Ajouter la suppression de compte  
+- Modifier un compte  
+- Rafraîchissement automatique de la liste  
+- Validation avancée du formulaire  
+- Gestion d’état globale (Redux ou Context API)
+
+---
+
+# 7. Auteurs
+
+Projet réalisé dans le cadre du TP Microservices.  
+Étudiant(e) : *votre nom ici*
 

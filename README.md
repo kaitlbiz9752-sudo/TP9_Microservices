@@ -23,13 +23,13 @@ Les deux projets communiquent via une API REST permettant la gestion des comptes
 
 <img width="609" height="976" alt="image" src="https://github.com/user-attachments/assets/5535b060-6fe8-4ed3-a934-b6df9897a2a4" />
 
-## 🚀 Fonctionnalités
+##  Fonctionnalités
 - Exposer une API REST pour gérer les comptes.
 - Fournir les endpoints pour :
   - récupérer la liste des comptes ;
   - ajouter un compte.
 
-## ▶️ Lancer le backend
+##  Lancer le backend
 Depuis IntelliJ ou via terminal :
 
 ```
@@ -37,13 +37,13 @@ mvn spring-boot:run
 ```
 
 Il démarre par défaut sur :  
-👉 **http://localhost:8082**
+ **http://localhost:8082**
 
 ---
 
 # 2. Frontend – React (compte-client)
 
-## 📁 Arborescence principale
+##  Arborescence principale
 - `src/components/` : contient les composants React :
   - `CompteList.js` : affichage de la liste des comptes
   - `CompteForm.js` : formulaire d’ajout de compte
@@ -121,5 +121,6 @@ https://github.com/user-attachments/assets/8de32e28-c34d-4c8a-b788-bffd5ed0d1b3
 
 Projet réalisé dans le cadre du TP Microservices.  
 Étudiante : *AITLBIZ Kaoutar*
+
 
 
